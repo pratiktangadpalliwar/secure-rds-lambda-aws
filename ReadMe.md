@@ -101,7 +101,7 @@ def lambda_handler(event, context):
     )
     cursor = conn.cursor()
     query = "INSERT INTO student_table (PRN, Name, Department) VALUES (%s, %s, %s)"
-    values = ('20220802368', 'Pratik Tangadpalliwar', 'Cloud & System Admin')
+    values = ('2022', 'Pratik Tangadpalliwar', 'Cloud & System Admin')
     cursor.execute(query, values)
     conn.commit()
     conn.close()
