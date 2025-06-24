@@ -69,3 +69,81 @@ Use this command:
 
 ```bash
 ssh -i your-key.pem -L 3307:<rds-endpoint>:3306 ec2-user@<ec2-public-ip>
+```
+---
+
+## MySQL Workbench Configuration
+
+Once your SSH tunnel is active, open **MySQL Workbench** and set the following:
+
+- **SSH Hostname**: `<EC2 public IP>`
+- **SSH Username**: `ec2-user`
+- **SSH Key File**: Path to your `.pem` key
+- **MySQL Hostname**: `<RDS endpoint>`
+- **Port**: `3306`
+- **MySQL Username/Password**: As configured in your RDS instance
+
+---
+
+## Lambda Function
+
+The Lambda function connects to your RDS instance and inserts data using the `pymysql` library.
+
+```python
+import pymysql
+
+def lambda_handler(event, context):
+    conn = pymysql.connect(
+        host='your-rds-endpoint',
+        user='your-username',
+        password='your-password',
+        database='student_db'
+    )
+    cursor = conn.cursor()
+    query = "INSERT INTO student_table (PRN, Name, Department) VALUES (%s, %s, %s)"
+    values = ('20220802368', 'Pratik Tangadpalliwar', 'Cloud & System Admin')
+    cursor.execute(query, values)
+    conn.commit()
+    conn.close()
+    return {"status": "Success"}
+```
+> Lambda setup steps and IAM permissions are detailed in deployment/step-by-step-deployment.md
+---
+
+## Project Structure
+```
+aws-rds-lambda-secure-setup/
+├── architecture/
+│ └── aws-rds-lambda-architecture.png
+├── deployment/
+│ ├── step-by-step-deployment.md
+│ ├── ssh-tunnel-setup.md
+│ └── aws-cli-commands.txt
+├── lambda_code/
+│ └── insert_data.py
+├── database/
+│ ├── schema.sql
+│ └── init_data.sql
+├── screenshots/
+│ └──Lambda-function.png
+│ └──RDS-instance.png
+│ └──Screenshot 2025-06-14 121337.png
+│ └──Screenshot 2025-06-14 121356.png
+│ └──Screenshot 2025-06-14 121406.png
+│ └──VPC-setup.png
+│ └──insert-result1.png
+│ └──insert-result2.png
+├── License
+└── README.md
+
+```
+---
+
+## Learnings
+
+- Deep understanding of **VPC architecture**
+- How to secure **RDS access using private subnets**
+- Integration of **AWS Lambda with RDS (MySQL)**
+- Use of **SSH tunneling** to access private database instances
+- Proper configuration of **IAM roles**, **security groups**, and **subnet routing**
+---
